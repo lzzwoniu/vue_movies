@@ -1,5 +1,5 @@
 <template>
   <div>
-    这是moives页面
+    这是moives1页面
   </div>
 </template>
