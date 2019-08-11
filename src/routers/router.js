@@ -10,6 +10,10 @@ export default new Router({
   routes: [
     Moives,
     Cinema,
-    My
+    My,
+    {
+      path: '/*',
+      redirect: '/moives'
+    }
   ]
 })
