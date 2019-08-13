@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="main">
     <Header title="喵喵电影" />
     <HeaderTab />
     <Footer />

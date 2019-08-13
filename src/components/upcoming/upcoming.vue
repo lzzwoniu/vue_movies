@@ -1,25 +1,13 @@
 <template>
   <div class="movie_body">
     <ul>
-      <li>
-        <div class="pic_show"><img src="../../assets/logo.png" alt=""></div>
+      <li v-for="item in dataList" :key="item.id">
+        <div class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
         <div class="info_list">
-          <h2>无名之辈</h2>
-          <p><span class="person">90</span>人想看</p>
-          <p>主演：陈建斌，任素喜</p>
-          <p>今天55家影院放映607场</p>
-        </div>
-        <div class="btn_pre">
-          预售
-        </div>
-      </li>
-      <li>
-        <div class="pic_show"><img src="../../assets/logo.png" alt=""></div>
-        <div class="info_list">
-          <h2>无名之辈</h2>
-          <p><span class="person">80</span>人想看</p>
-          <p>主演：陈建斌，任素喜</p>
-          <p>今天55家影院放映607场</p>
+          <h2>{{item.nm}}<img v-if="item.version!= ''" src="@/assets/maxs.png"></h2>
+          <p><span class="person">{{item.wish}}</span>人想看</p>
+          <p>主演：{{item.star}}</p>
+          <p>{{item.showInfo}}</p>
         </div>
         <div class="btn_pre">
           预售
@@ -31,11 +19,25 @@
 
 <script>
 export default {
-  name: "upcoming"
+  name: "upcoming",
+  data() {
+    return {
+      dataList:[]
+    }
+  },
+  mounted() {
+    this.$axios.get("/api/movieComingList?cityId=10").then((res)=>{
+      console.log(res)
+      var msg = res.data.msg
+      if(msg == "ok"){
+        this.dataList = res.data.data.comingList
+      }
+    })
+  },
 }
 </script>
 
-<style>
+<style scoped>
 #content .movie_body{ flex:1; overflow:auto;}
 .movie_body ul{ margin:0 12px; overflow: hidden;}
 .movie_body ul li{ margin-top:12px; display: flex; align-items:center; border-bottom: 1px #e6e6e6 solid; padding-bottom: 10px;}

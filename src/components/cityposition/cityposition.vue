@@ -3,63 +3,95 @@
         <div class="city_list">
             <div class="city_hot">
                 <h2>热门城市</h2>
-                <ul class="clearfix">
-                    <li>上海</li>
+                <ul class="clearfix" >
+                    <li v-for="item in hotList" :key="item.id">{{item.nm}}</li>
                 </ul>
             </div>
-            <div class="city_sort">
-                <div>
-                    <h2>A</h2>
+            <div class="city_sort" ref="city_sort">
+                <div v-for="item in cityList" :key="item.index">
+                    <h2>{{item.index}}</h2>
                     <ul>
-                        <li>阿拉善盟</li>
-                        <li>鞍山</li>
-                        <li>安庆</li>
-                        <li>安阳</li>
+                        <li v-for="cityname in item.list" :key="cityname.id">{{cityname.nm}}</li>
                     </ul>
                 </div>	
             </div>
         </div>
         <div class="city_index">
             <ul>
-                <li>A</li>
-                <li>B</li>
-                <li>C</li>
-                <li>D</li>
-                <li>E</li>
+                <li v-for="(item, index) in cityList" :key="item.index" @touchstart = "handIndex(index)">{{item.index}}</li>
             </ul>
         </div>
-        <!-- <div class="city_list">
-            <Loading v-if="isLoading" />
-            <Scroller v-else ref="city_List">
-                <div>
-                    <div class="city_hot">
-                        <h2>热门城市</h2>
-                        <ul class="clearfix">
-                            <li v-for="item in hotList" :key="item.id" @tap="handleToCity(item.nm , item.id)">{{ item.nm }}</li>
-                        </ul>
-                    </div>
-                    <div class="city_sort" ref="city_sort">
-                        <div v-for="item in cityList" :key="item.index">
-                            <h2>{{ item.index }}</h2>
-                            <ul>
-                                <li v-for="itemList in item.list" :key="itemList.id" @tap="handleToCity(itemList.nm , itemList.id)">{{ itemList.nm }}</li>
-                            </ul>
-                        </div>	
-                    </div>
-                </div>
-            </Scroller>
-        </div>
-        <div class="city_index">
-            <ul>
-                <li v-for="(item,index) in cityList" :key="item.index" @touchstart="handleToIndex(index)">{{ item.index }}</li>
-            </ul>
-        </div> -->
     </div>
 </template>
 
 <script>
 export default {
-  name: "cityposition"
+  name: "cityposition",
+  data() {
+      return {
+          hotList:[],
+          cityList:[],
+      }
+  },
+  mounted() {
+      this.$axios.get("/api/cityList").then((res)=>{
+          var msg = res.data.msg;
+          if(msg == "ok"){
+              var cityListData = res.data.data.cities;
+              var newdata = this.forCityData(cityListData)
+              this.hotList = newdata.hotList
+              this.cityList = newdata.cityList
+          }
+      })
+  },
+  methods: {
+      forCityData(listdata){
+        var cityList = [],
+            hotList = [],
+            i;
+        for(var k = 0;k<listdata.length;k++){
+            if(listdata[k].isHot === 1){
+              hotList.push(listdata[k])  
+            }
+        }
+        for(i = 0;i<listdata.length;i++){
+            var everyFirst = listdata[i].py.substring(0, 1).toUpperCase()
+            if(obtainList(everyFirst)){  //新加的index
+                cityList.push({index: everyFirst,list: [{nm:listdata[i].nm, id: listdata[i].id}]})
+            }else{ // 老的index
+              for(var j=0;j<cityList.length;j++){
+                  if(cityList[j].index === everyFirst){
+                    cityList[j].list.push({nm: listdata[i].nm, id: listdata[i].id})
+                  }
+              }  
+            }
+        }
+        cityList.sort((a, b)=>{
+            if(a.index > b.index){
+                return 1
+            }else if(a.index < b.index){
+                return -1
+            }
+        })
+        function obtainList(everyFirst){
+            for(var i = 0;i<cityList.length;i++){
+                if(cityList[i].index === everyFirst){
+                    return false
+                }
+            }
+            return true;
+        }
+        return {
+            hotList,
+            cityList
+        }
+      },
+      handIndex(index){
+          var h2 = this.$refs.city_sort.getElementsByTagName('h2');
+          this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
+
+      }
+  },
 }
 </script>
 
