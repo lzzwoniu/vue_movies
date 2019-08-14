@@ -1,8 +1,8 @@
 <template>
-  <div class="movie_body">
+  <div class="movie_body" ref="movie_body">
     <ul>
       <li v-for="item in nowData" :key="item.id">
-        <div class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
+        <div @tap="godetail" class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
         <div class="info_list">
           <h2>{{item.nm}} <img v-if="item.version !=''" src="@/assets/maxs.png"> </h2>
           <p>观众评 <span class="grade">{{item.sc}}</span></p>
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import BScroll from 'better-scroll';
 export default {
   name: "ishit",
   data() {
@@ -30,8 +31,22 @@ export default {
       var msg = res.data.msg
       if(msg == "ok"){
         this.nowData = res.data.data.movieList
+        this.$nextTick(()=>{
+          var Sroll = new BScroll(this.$refs.movie_body,{
+            tap: true,
+            probeType: 1
+          })
+          Sroll.on("scroll",()=>{
+            console.log("scroll")
+          })
+        })
       }
     })
+  },
+  methods: {
+    godetail(){
+      console.log("12")
+    }
   },
 }
 </script>
