@@ -1,29 +1,35 @@
 <template>
   <div class="movie_body" ref="movie_body">
-    <ul>
-      <li v-for="item in nowData" :key="item.id">
-        <div @tap="godetail" class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
-        <div class="info_list">
-          <h2>{{item.nm}} <img v-if="item.version !=''" src="@/assets/maxs.png"> </h2>
-          <p>观众评 <span class="grade">{{item.sc}}</span></p>
-          <p>主演：{{item.star}}</p>
-          <p>{{item.showInfo}}</p>
-        </div>
-        <div class="btn_mall">
-          购票
-        </div>
-      </li>
-    </ul>
+    <Loading v-if="isLoading" />
+    <BScroll v-else :handleScroll=handleScrolls :handleTouchEnd=handleTouchEnds>
+      <ul>
+        <li class="pullDown">{{pullDown}}</li>
+        <li v-for="item in nowData" :key="item.id">
+          <div @tap="godetail" class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
+          <div class="info_list">
+            <h2>{{item.nm}} <img v-if="item.version !=''" src="@/assets/maxs.png"> </h2>
+            <p>观众评 <span class="grade">{{item.sc}}</span></p>
+            <p>主演：{{item.star}}</p>
+            <p>{{item.showInfo}}</p>
+          </div>
+          <div class="btn_mall">
+            购票
+          </div>
+        </li>
+      </ul>
+    </BScroll>
   </div>
 </template>
 
 <script>
-import BScroll from 'better-scroll';
+// import BScroll from 'better-scroll';
 export default {
   name: "ishit",
   data() {
     return {
-      nowData:[]
+      nowData:[],
+      pullDown:'',
+      isLoading: true
     }
   },
   mounted() {
@@ -31,21 +37,30 @@ export default {
       var msg = res.data.msg
       if(msg == "ok"){
         this.nowData = res.data.data.movieList
-        this.$nextTick(()=>{
-          var Sroll = new BScroll(this.$refs.movie_body,{
-            tap: true,
-            probeType: 1
-          })
-          Sroll.on("scroll",()=>{
-            console.log("scroll")
-          })
-        })
+        this.isLoading = false
       }
     })
   },
   methods: {
     godetail(){
       console.log("12")
+    },
+    handleScrolls(pos){
+      if(pos.y > 30){
+        this.pullDown = "更新中"
+      }
+    },
+    handleTouchEnds(pos){
+      this.pullDown = "更新成功"
+      setTimeout(()=>{
+        this.$axios.get("/api/movieOnInfoList?cityId=11").then((res)=>{
+          var msg = res.data.msg
+          if(msg == "ok"){
+            this.nowData = res.data.data.movieList 
+            this.pullDown = ""
+          } 
+        })
+      },1000)
     }
   },
 }

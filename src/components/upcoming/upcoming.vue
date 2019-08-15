@@ -1,19 +1,22 @@
 <template>
   <div class="movie_body">
-    <ul>
-      <li v-for="item in dataList" :key="item.id">
-        <div class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
-        <div class="info_list">
-          <h2>{{item.nm}}<img v-if="item.version!= ''" src="@/assets/maxs.png"></h2>
-          <p><span class="person">{{item.wish}}</span>人想看</p>
-          <p>主演：{{item.star}}</p>
-          <p>{{item.showInfo}}</p>
-        </div>
-        <div class="btn_pre">
-          预售
-        </div>
-      </li>
-    </ul>
+    <Loading v-if="isLoading" />
+    <BScroll v-else>
+      <ul>
+        <li v-for="item in dataList" :key="item.id">
+          <div class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
+          <div class="info_list">
+            <h2>{{item.nm}}<img v-if="item.version!= ''" src="@/assets/maxs.png"></h2>
+            <p><span class="person">{{item.wish}}</span>人想看</p>
+            <p>主演：{{item.star}}</p>
+            <p>{{item.showInfo}}</p>
+          </div>
+          <div class="btn_pre">
+            预售
+          </div>
+        </li>
+      </ul>
+    </BScroll>
   </div>
 </template>
 
@@ -22,7 +25,8 @@ export default {
   name: "upcoming",
   data() {
     return {
-      dataList:[]
+      dataList:[],
+      isLoading: true
     }
   },
   mounted() {
@@ -31,6 +35,7 @@ export default {
       var msg = res.data.msg
       if(msg == "ok"){
         this.dataList = res.data.data.comingList
+        this.isLoading = false
       }
     })
   },

@@ -1,5 +1,7 @@
 <template>
   <div class="cinema_body">
+    <Loading v-if="isLoading" />
+    <BScroll v-else>
       <ul>
         <li v-for="item in cinemalist" :key="item.id">
           <div>
@@ -17,6 +19,7 @@
           </div>
         </li>
       </ul>
+    </BScroll>
   </div>
 </template>
 
@@ -25,7 +28,8 @@ export default {
   name: "cinemalist",
   data() {
     return {
-      cinemalist:[]
+      cinemalist:[],
+      isLoading: true
     }
   },
   mounted() {
@@ -34,6 +38,7 @@ export default {
       var msg = res.data.msg;
       if(msg == "ok"){
         this.cinemalist = res.data.data.cinemas
+        this.isLoading = false
       }
     })
   },

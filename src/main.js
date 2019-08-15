@@ -15,6 +15,14 @@ Vue.filter('setWH',(url , arg)=>{
   return url.replace(/w\.h/,arg);
 });
 
+// scroll
+import BScroll from '@/components/bscroll/bscroll';
+Vue.component("BScroll", BScroll)
+
+// loading
+import Loading from '@/components/loading/loading';
+Vue.component("Loading", Loading)
+
 new Vue({
   router,
   store,
