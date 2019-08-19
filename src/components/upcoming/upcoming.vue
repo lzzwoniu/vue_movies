@@ -1,8 +1,9 @@
 <template>
   <div class="movie_body">
     <Loading v-if="isLoading" />
-    <BScroll v-else>
+    <BScroll v-else :handleScroll=handleScrolls :handleTouchEnd=handleTouchEnds>
       <ul>
+        <li class="pullDown">{{pullDown}}</li>
         <li v-for="item in dataList" :key="item.id">
           <div class="pic_show"><img :src="item.img | setWH('128.180')" alt=""></div>
           <div class="info_list">
@@ -26,18 +27,42 @@ export default {
   data() {
     return {
       dataList:[],
-      isLoading: true
+      isLoading: true,
+      pullDown: '',
+      before_cityId: '-1'
     }
   },
-  mounted() {
-    this.$axios.get("/api/movieComingList?cityId=10").then((res)=>{
-      console.log(res)
+  activated() {
+    var cityId = this.$store.state.MoiveCity.id
+    if(this.before_cityId == cityId){ return false;}
+    this.isLoading = true
+    this.$axios.get("/api/movieComingList?cityId=" + cityId).then((res)=>{
       var msg = res.data.msg
       if(msg == "ok"){
         this.dataList = res.data.data.comingList
         this.isLoading = false
+        this.before_cityId = cityId
       }
     })
+  },
+  methods: {
+    handleScrolls(pos){
+      if(pos.y > 30){
+        this.pullDown = "更新中"
+      }
+    },
+    handleTouchEnds(pos){
+      this.pullDown = "更新成功"
+      setTimeout(()=>{
+        this.$axios.get("/api/movieComingList?cityId=10").then((res)=>{
+          var msg = res.data.msg
+          if(msg == "ok"){
+            this.dataList = res.data.data.comingList
+            this.pullDown = ""
+          }
+        })
+      },1000)
+    }
   },
 }
 </script>

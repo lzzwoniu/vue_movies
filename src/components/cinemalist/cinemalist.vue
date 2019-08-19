@@ -1,8 +1,9 @@
 <template>
   <div class="cinema_body">
     <Loading v-if="isLoading" />
-    <BScroll v-else>
+    <BScroll v-else :handleScroll=handleScrolls :handleTouchEnd=handleTouchEnds>
       <ul>
+        <li class="pullDown">{{pullDown}}</li>
         <li v-for="item in cinemalist" :key="item.id">
           <div>
               <span>{{item.nm}}</span>
@@ -29,16 +30,21 @@ export default {
   data() {
     return {
       cinemalist:[],
-      isLoading: true
+      isLoading: true,
+      pullDown: '',
+      before_cityId: '-1'
     }
   },
-  mounted() {
-    this.$axios.get("/api/cinemaList?cityId=10").then((res)=>{
-      console.log(res)
+  activated() {
+    var cityId = this.$store.state.MoiveCity.id
+    if(this.before_cityId == cityId){ return false;}
+    this.isLoading = true
+    this.$axios.get("/api/cinemaList?cityId=" + cityId).then((res)=>{
       var msg = res.data.msg;
       if(msg == "ok"){
         this.cinemalist = res.data.data.cinemas
         this.isLoading = false
+        this.before_cityId = cityId
       }
     })
   },
@@ -58,7 +64,6 @@ export default {
       return ''
     },
     classCard(val){
-      console.log(val)
       var card = [
         { key: "allowRefund", value: "bl" },
         { key: "endorse", value: "bl" },
@@ -72,7 +77,24 @@ export default {
       }
       return "";
     }
-  }
+  },
+  methods: {
+    handleScrolls(pos){
+      if(pos.y > 30){
+        this.pullDown = "更新中"
+      }
+    },
+    handleTouchEnds(){
+      this.pullDown = "更新成功"
+      this.$axios.get("/api/cinemaList?cityId=10").then((res)=>{
+      var msg = res.data.msg;
+      if(msg == "ok"){
+        this.cinemalist = res.data.data.cinemas
+        this.pullDown = ''
+      }
+    })
+    }
+  },
 }
 </script>
 
@@ -125,5 +147,10 @@ export default {
 .cinema_body .card p.bl {
   color: #589daf;
   border: 1px solid #589daf;
+}
+.cinema_body .pullDown{
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 </style>

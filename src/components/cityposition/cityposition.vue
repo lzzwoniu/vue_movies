@@ -7,14 +7,14 @@
                     <div class="city_hot">
                         <h2>热门城市</h2>
                         <ul class="clearfix" >
-                            <li v-for="item in hotList" :key="item.id">{{item.nm}}</li>
+                            <li v-for="item in hotList" :key="item.id" @tap = "handToCity(item.nm, item.id)">{{item.nm}}</li>
                         </ul>
                     </div>
                     <div class="city_sort" ref="city_sort">
                         <div v-for="item in cityList" :key="item.index">
                             <h2>{{item.index}}</h2>
                             <ul>
-                                <li v-for="cityname in item.list" :key="cityname.id">{{cityname.nm}}</li>
+                                <li v-for="cityname in item.list" :key="cityname.id" @tap = "handToCity(cityname.nm, cityname.id)">{{cityname.nm}}</li>
                             </ul>
                         </div>	
                     </div>
@@ -43,8 +43,8 @@ export default {
       var hotList = window.localStorage.getItem("hotList")
       var cityList = window.localStorage.getItem("cityList")
       if(hotList && cityList){
-          this.hotList = hotList
-          this.cityList = cityList
+          this.hotList = JSON.parse(hotList)
+          this.cityList = JSON.parse(cityList)
           this.isLoading = false
       }else{
           this.$axios.get("/api/cityList").then((res)=>{
@@ -108,6 +108,12 @@ export default {
         //   this.$refs.city_sort.parentNode.scrollTop = h2[index].offsetTop
         this.$refs.city_List.toScrollClick(-h2[index].offsetTop)
 
+      },
+      handToCity(nm, id){
+          this.$store.commit("MoiveCity/CITY_INFO", {nm, id})
+          window.localStorage.setItem("nowNm",nm)
+          window.localStorage.setItem("nowId",id)
+          this.$router.push('/moives/ishit')
       }
   },
 }

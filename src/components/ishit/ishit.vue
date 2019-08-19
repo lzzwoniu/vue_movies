@@ -29,15 +29,20 @@ export default {
     return {
       nowData:[],
       pullDown:'',
-      isLoading: true
+      isLoading: true,
+      before_cityId: '-1'
     }
   },
-  mounted() {
-    this.$axios.get("/api/movieOnInfoList?cityId=10").then((res)=>{
+  activated() {
+    var cityId = this.$store.state.MoiveCity.id
+    if(this.before_cityId == cityId){ return false;}
+    this.isLoading = true
+    this.$axios.get("/api/movieOnInfoList?cityId=" + cityId).then((res)=>{
       var msg = res.data.msg
       if(msg == "ok"){
         this.nowData = res.data.data.movieList
         this.isLoading = false
+        this.before_cityId = cityId
       }
     })
   },
